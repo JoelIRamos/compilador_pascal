@@ -1,0 +1,15 @@
+[[package]]
+name = "ply"
+version = "3.11"
+description = "Python Lex & Yacc"
+category = "main"
+optional = false
+python-versions = "*"
+
+[metadata]
+lock-version = "1.1"
+python-versions = "^3.10"
+content-hash = "ce03b897b81b9f202a4b7f02c144b678023ce9362f7784bb1b032c7020ccc080"
+
+[metadata.files]
+ply = []
