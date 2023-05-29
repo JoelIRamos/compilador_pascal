@@ -1,6 +1,7 @@
 program main{
-  var i,n,f,x : int;
+  var x, y: int;
   begin;
-    write(n);
+    x++;
+    y := x + 3;
   end;
 }

@@ -15,7 +15,7 @@ tokens = [
   'DIVIDE',  # /
   'PLUSPLUS',  # ++
   'MINUSMINUS',  # --
-  'ASSIGN',  # :=
+  'ASSIGN',  # := 
   'EQUAL',  # =
   'LESSER',  # <
   'GREATER',  # >
@@ -53,7 +53,6 @@ keywords = {
 
 # Adding the keywords to the tokens
 tokens = tokens + list(keywords.values())
-# print(tokens)
 
 # ----------------- Regular Expresions -----------------
 
@@ -88,7 +87,6 @@ def t_STRING(t):
 
 # Regular expression for numbers
 def t_NUMBER(t):
-  # Catch a real number
   r'[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?'
   # If number is an integer
   if t.value.isdigit():
@@ -100,11 +98,7 @@ def t_NUMBER(t):
 # Regular expression for booleans
 def t_BOOLEAN(t):
   r'True|False'
-  # ToDo: True and Flase or 1 and 0
-  # if (t.value == 'True'):
-  #   t.value = 1
-  # else:
-  #   t.value = 0
+  # t.value = bool(t.value)
   return t
 
 
