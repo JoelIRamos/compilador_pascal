@@ -1,3 +1,5 @@
+# from Node impor node 
+
 def importData(file_name):
   file_name = "./Programs/" + file_name + ".p"
   try:
@@ -65,3 +67,11 @@ def separateVariables(t):
     sub_tuple.append(tuple(temp))
 
   return eliminar_coma_extra(sub_tuple)
+
+
+def print_tuple(result):
+  for res in result:
+    if isinstance(res,tuple):
+      print_tuple(res)
+    else:
+      print(res)

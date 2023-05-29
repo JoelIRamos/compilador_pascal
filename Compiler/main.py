@@ -7,10 +7,11 @@ from Lexer import *
 from Parser import *
 
 from functions import importData
+from functions import print_tuple
 
 try:
   # Import the Data from the File
-  data = importData("Example")
+  data = importData("Example5")
 
   # Build the lexer and parser
   lexer = lex.lex()
@@ -20,7 +21,10 @@ try:
   result = parser.parse(data, lexer=lexer)
 
   # print(quad)
-  print(result)
+  # print(result)
+  print_tuple(result)
+
+  # quadruple.print()
 
 except Exception as e:
   print(e)

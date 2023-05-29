@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 from Lexer import tokens
-# from quadruples import Quadruples
+from Node import Node
+from Quadruples import Quadruples
+from Symbols import Symbols
 from functions import debugPrint as debug_print
 from functions import simplifyTuple
 from functions import separateVariables
@@ -19,6 +21,8 @@ precendence = (
 
 # ----------------- Grammar Rules -----------------
 
+quadruple = Quadruples()
+stack = []
 
 def p_program(p):
   '''
@@ -26,14 +30,14 @@ def p_program(p):
   '''
   debug_print("program")
   p[4] = tuple(separateVariables(p[4]))
-  p[0] = (p[1], p[2], p[4], p[5])
+  p[0] = (Node(p[1], p.lineno), Node(p[2], p.lineno), p[4], p[5])
 
 def p_program_without_vars(p):
   '''
   Program : PROGRAM ID LEFTBRACKET block RIGHTBRACKET
   '''
   debug_print("program")
-  p[0] = (p[1], p[2], p[4])
+  p[0] = (Node(p[1], p.lineno), Node(p[2], p.lineno), p[4])
 
 
 def p_variable(p):
@@ -42,7 +46,8 @@ def p_variable(p):
   '''
   debug_print("variable")
   p[2] = simplifyTuple(p[2])
-  p[0] = (p[1], p[2], p[4])
+  p[0] = (Node(p[1], p.lineno), p[2], p[4])
+  
 
 
 def p_variable_repetition(p):
@@ -50,7 +55,6 @@ def p_variable_repetition(p):
   variable : variable variable
   '''
   debug_print("variable")
-  # p[0] = (p[1], p[2])
   if (isinstance(p[1][0], tuple) and isinstance(p[2][0], tuple)):
     result = p[1] + p[2]
   elif isinstance(p[1][0], tuple):
@@ -69,7 +73,7 @@ def p_variables(p):
   variables : ID
   '''
   debug_print("variables")
-  p[0] = p[1]
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_variables_repetition(p):
@@ -88,7 +92,7 @@ def p_datatype(p):
            | STR
   '''
   debug_print("datatype")
-  p[0] = p[1]
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_block(p):
@@ -96,7 +100,7 @@ def p_block(p):
   block : BEGIN SEMICOLON statement END SEMICOLON
   '''
   debug_print("block") 
-  p[0] = (p[1], p[3], p[4])
+  p[0] = (Node(p[1], p.lineno), p[3], Node(p[4], p.lineno))
 
 
 def p_statement(p):
@@ -111,7 +115,6 @@ def p_statement(p):
   p[0] = p[1]
 
 
-# ToDo como hago esto? ()(()()) -> ()()() y (()())() -> ()()()
 def p_statements(p):
   '''
   statement : statement statement
@@ -120,18 +123,18 @@ def p_statements(p):
   # p[0] = (p[1], p[2])
   if (isinstance(p[1][0], tuple) and isinstance(p[2][0], tuple)):
     result = p[1] + p[2]
-    print(result)
+    # print(result)
   elif isinstance(p[1][0], tuple):
     result = p[1] + tuple([p[2]])
     # print(result)
   elif isinstance(p[2][0], tuple):
     result = tuple([p[1]]) + (p[2])
-    print(p[1])
-    print(p[2])
-    print(result)
+    # print(p[1])
+    # print(p[2])
+    # print(result)
   else:
     result = tuple([p[1],p[2]])
-    print(result)
+    # print(result)
   p[0] = result
 
 
@@ -140,7 +143,7 @@ def p_writestatement(p):
   writestatement : WRITE LEFTPARENTHESIS expression RIGHTPARENTHESIS SEMICOLON
   '''
   debug_print("writestatement")
-  p[0] = (p[1], p[3])
+  p[0] = (Node(p[1], p.lineno), p[3])
 
 
 def p_assignstatement_classic(p):
@@ -148,7 +151,8 @@ def p_assignstatement_classic(p):
   assignstatement : ID ASSIGN expression SEMICOLON
   '''
   debug_print("assignstatement_classic")
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (Node(p[2], p.lineno), Node(p[1], p.lineno), p[3])
+  quadruple.addQuadruples(p[2], p[3], None, p[1])
 
 
 def p_assignstatement_increment_decrement(p):
@@ -157,15 +161,17 @@ def p_assignstatement_increment_decrement(p):
                   | ID MINUSMINUS SEMICOLON
   '''
   debug_print("assignstatement_increment_decrement")
-  p[0] = (p[2], p[1])
-
+  # p[0] = (Node(p[2], p.lineno), Node(p[1], p.lineno))
+  ptemp = Node(p[1], p.lineno)
+  p[0] = (':=', ptemp, ('+', ptemp, 1))
+  quadruple.addQuadruples('+', p[1], 1, p[1])
 
 def p_ifstatement(p):
   '''
   ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS THEN LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("ifstatement")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8])
+  p[0] = (Node(p[1], p.lineno), p[3], Node(p[5], p.lineno), Node(p[6], p.lineno), p[7], Node(p[8], p.lineno))
 
 
 def p_if_else_statement(p):
@@ -173,7 +179,7 @@ def p_if_else_statement(p):
   ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS THEN LEFTBRACKET statement RIGHTBRACKET ELSE LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("if_else_statement")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
+  p[0] = (Node(p[1], p.lineno), p[3], Node(p[5], p.lineno), Node(p[6], p.lineno), p[7], Node(p[8], p.lineno), Node(p[9], p.lineno), Node(p[10], p.lineno), p[11], Node(p[12], p.lineno))
 
 
 def p_whileloop(p):
@@ -181,7 +187,7 @@ def p_whileloop(p):
   whileloop : WHILE LEFTPARENTHESIS expression RIGHTPARENTHESIS DO LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("whileloop")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8])
+  p[0] = (Node(p[1], p.lineno), p[3], Node(p[5], p.lineno), Node(p[6], p.lineno), p[7], Node(p[8], p.lineno))
 
 
 def p_forloop(p):
@@ -189,18 +195,17 @@ def p_forloop(p):
   forloop : FOR LEFTPARENTHESIS ID ASSIGN expression SEMICOLON expression SEMICOLON ID increment_decrement RIGHTPARENTHESIS LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("forloop")
-  p[0] = (p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11],
-          p[12], p[13], p[14])
+  p[0] = (Node(p[1], p.lineno), Node(p[3], p.lineno), Node(p[4], p.lineno), p[5], p[7], Node(p[9], p.lineno), p[10],
+          Node(p[12], p.lineno), p[13], Node(p[14], p.lineno))
 
 
-# **************************************************
 def p_increment_decrement(p):
   '''
   increment_decrement : PLUSPLUS
                       | MINUSMINUS
   '''
   debug_print("formodifier")
-  p[0] = p[1]
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_expression(p):
@@ -208,11 +213,17 @@ def p_expression(p):
   expression : logical_expression 
              | relational_expression 
              | arithmetic_expression 
-             | ID
-             | STRING
   '''
   debug_print("expression")
   p[0] = p[1]
+
+def p_expression_unit(p):
+  '''
+  expression : ID
+             | STRING
+  '''
+  debug_print("expression_unit")
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_logical_expression(p):
@@ -221,7 +232,8 @@ def p_logical_expression(p):
                      | relational_expression OR relational_expression
   '''
   debug_print("logical_expression")
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (Node(p[2], p.lineno), p[1], p[3])
+  quadruple.addQuadruples(p[2], p[1], p[3], None)
 
 
 def p_logical_expression_parenthesis(p):
@@ -239,11 +251,19 @@ def p_relational_expression(p):
                         | arithmetic_expression GREATEREQUAL arithmetic_expression
                         | arithmetic_expression LESSEREQUAL arithmetic_expression
                         | arithmetic_expression EQUAL arithmetic_expression
-                        | STRING EQUAL STRING
   '''
   debug_print("relational_expression")
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (Node(p[2], p.lineno), p[1], p[3])
+  quadruple.addQuadruples(p[2], p[1], p[3], None)
 
+
+def p_relational_expression_string(p):
+  '''
+  relational_expression : STRING EQUAL STRING
+  '''
+  debug_print("relational_expression_string")
+  p[0] = (Node(p[2], p.lineno), Node(p[1], p.lineno), Node(p[3], p.lineno))
+  quadruple.addQuadruples(p[2], p[1], p[3], None)
 
 def p_relational_expression_parenthesis(p):
   '''
@@ -258,7 +278,7 @@ def p_relational_expression_unit(p):
   relational_expression : BOOLEAN
   '''
   debug_print("relational_expression_unit")
-  p[0] = p[1]
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_arithmetic_expression(p):
@@ -269,7 +289,8 @@ def p_arithmetic_expression(p):
                         | arithmetic_expression DIVIDE arithmetic_expression
   '''
   debug_print("arithmetic_expression")
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (Node(p[2], p.lineno), p[1], p[3])
+  quadruple.addQuadruples(p[2], p[1], p[3], None)
 
 
 def p_arithmetic_expression_parenthesis(p):
@@ -286,7 +307,7 @@ def p_arithmetic_expression_modifier(p):
                         | INTEGER
                         | NUMBER
   '''
-  p[0] = p[1]
+  p[0] = Node(p[1], p.lineno)
 
 
 def p_empty(p):
