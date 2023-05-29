@@ -4,30 +4,10 @@ import ply.lex as lex
 
 # List of token names
 tokens = [
-  'ID',
-  'NUMBER',
-  'INTEGER',  # 90, 2, 45
-  'BOOLEAN',  # True or False
-  'STRING',  # "Hello World"
-  'PLUS',  # +
-  'MINUS',  # -
-  'TIMES',  # *
-  'DIVIDE',  # /
-  'PLUSPLUS',  # ++
-  'MINUSMINUS',  # --
-  'ASSIGN',  # := 
-  'EQUAL',  # =
-  'LESSER',  # <
-  'GREATER',  # >
-  'LESSEREQUAL',  # <= 
-  'GREATEREQUAL',  # >=
-  'COMMA',  # ,
-  'COLON',  # :
-  'SEMICOLON',  # ;
-  'LEFTPARENTHESIS',  # (
-  'RIGHTPARENTHESIS',  # )
-  'LEFTBRACKET',  # {
-  'RIGHTBRACKET',  # }
+  'ID', 'NUMBER', 'INTEGER', 'BOOLEAN', 'STRING', 'PLUS', 'MINUS', 'TIMES',
+  'DIVIDE', 'PLUSPLUS', 'MINUSMINUS', 'ASSIGN', 'EQUAL', 'LESSER', 'GREATER',
+  'LESSEREQUAL', 'GREATEREQUAL', 'COMMA', 'COLON', 'SEMICOLON',
+  'LEFTPARENTHESIS', 'RIGHTPARENTHESIS', 'LEFTBRACKET', 'RIGHTBRACKET'
 ]
 
 # List of keywords (will be added to the tokens)
@@ -88,22 +68,21 @@ def t_STRING(t):
 # Regular expression for numbers
 def t_NUMBER(t):
   r'[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?'
-  # If number is an integer
-  if t.value.isdigit():
+  if '.' in t.value:
+    t.value = float(t.value)
+  else:
     t.value = int(t.value)
-    t.type = "INTEGER"
   return t
 
 
 # Regular expression for booleans
 def t_BOOLEAN(t):
   r'True|False'
-  # t.value = bool(t.value)
+  t.value = bool(t.value)
   return t
 
 
 # Regular expression for ID's
-# An ID must start with a char of _ and can have digits later
 def t_ID(t):
   r'[a-zA-Z_][a-zA-Z0-9_]*'
   if t.value in keywords:
