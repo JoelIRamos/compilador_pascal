@@ -8,7 +8,7 @@ from functions import print_tuple
 
 try:
   # Import the Data from the File
-  data = importData("Example2")
+  data = importData("Example5")
 
   # Build the lexer and parser
   lexer = lex.lex()
@@ -26,9 +26,9 @@ try:
 
 except Exception as e:
   print(e)
-# print("-----")
-# print(symbols)
-# quadruple.print()
+print("-----")
+print(symbols)
+quadruple.print()
 
 # newlexer = lex.lex()
 # newlexer.input(data)

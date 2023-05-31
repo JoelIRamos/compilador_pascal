@@ -21,6 +21,7 @@ precendence = (
 quadruple = Quadruples()
 # quadruple.addQuadruples(operator, left, right, result)
 stack = []
+jumps = []
 symbols = Symbols()
 
 # ----------------- Grammar Rules -----------------
@@ -33,6 +34,7 @@ def p_program(p):
   debug_print("program")
   p[4] = tuple(separateVariables(p[4]))
   p[0] = (p[1], p[2], p[4], p[5])
+  quadruple.addQuadruples(None, None, None, None)
 
 
 def p_program_without_vars(p):
@@ -191,25 +193,26 @@ def p_assignstatement_increment_decrement(p):
 # ++++++++ IF +++++++++++
 def p_ifstatement(p):
   '''
-  ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS  THEN LEFTBRACKET statement RIGHTBRACKET 
+  ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS point_if_then_ini THEN LEFTBRACKET statement RIGHTBRACKET point_if_then_end elsestatement
   '''
-  # '''
-  # ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS point_if_then_ini THEN LEFTBRACKET statement RIGHTBRACKET p_point_if_then_end
-  # '''
   debug_print("ifstatement")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8])
-  # p[0] = (p[1], p[3], p[6], p[7], p[8], p[9])
-  # ToDo
+  p[0] = (p[1], p[3], p[6], p[7], p[8], p[9])
 
 
 def p_if_else_statement(p):
   '''
-  ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS THEN LEFTBRACKET statement RIGHTBRACKET ELSE LEFTBRACKET statement RIGHTBRACKET
+  elsestatement : ELSE LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("if_else_statement")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
-  # ToDo
+  p[0] = (p[1], p[2], p[3], p[4])
 
+
+def p_if_else_statement_none(p):
+  '''
+  elsestatement : 
+  '''
+  debug_print("p_if_else_statement_none")
+  p[0] = None
 
 
 # ++++++++ WHILE +++++++++++
@@ -523,20 +526,27 @@ def p_point_ae(p):
   return 
 
 
-# def p_point_if_then_ini(p):
-#   '''
-#   point_if_then_ini : 
-#   '''
-#   pass
-#   # var = stack.pop()
-#   # symbol = symbols.getSymbol(var)
-#   # if symbol[0] != None:
-#   #   var = symbol[0]
-#   # quadruple.addQuadruples('goToF', var, None, None)
-
-
-# def p_point_if_then_end(p):
-#   '''
-#   point_if_then_end : 
-#   '''
-#   pass
+def p_point_if_then_ini(p):
+  '''
+  point_if_then_ini : 
+  '''
+  var = stack.pop()
+  symbol = symbols.getSymbol(var)
+  if symbol[1] == 'bool':
+    if symbol[0] != None:
+      var = symbol[0]
+    quadruple.counter
+    jumps.append(quadruple.counter)
+    quadruple.addQuadruples('goToF', var, None, None)
+  else:
+    raise Exception("The expresión for the IF Statement must resolve in a boolean value")
+  return
+  
+def p_point_if_then_end(p):
+  '''
+  point_if_then_end : 
+  '''
+  # p[0] = None
+  # pass
+  quadruple.fillQuadruples(jumps.pop(),quadruple.counter)
+  return

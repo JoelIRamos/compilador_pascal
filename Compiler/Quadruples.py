@@ -23,8 +23,10 @@ class Quadruples():
 
   # Print the quadruple in lines
   def print(self):
+    line = 0;
     for quadrupe in self.quadruples:
-      print(quadrupe) 
+      print(line, ".- ",quadrupe) 
+      line += 1
 
   # write cuadruplos on file
   # def writeCuadruplos(self):

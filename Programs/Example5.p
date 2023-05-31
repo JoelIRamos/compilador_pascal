@@ -1,7 +1,15 @@
 program main{
-  var x : int;
-  var y : real;
+  var i,n,f,x : int;
   begin;
-    write((False or False) and True);
+    write("texto dump");
+    f := 1;
+    x := 5;
+    if (x > f) then 
+    {
+      if (x = f) then
+      {
+        n := x + f;
+      }
+    }
   end;
 }
