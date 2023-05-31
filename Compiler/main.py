@@ -1,8 +1,5 @@
-# Imprimir Lista de Cuadruplos
 # While con Switch Anidado para Máquina Virtual?
-# Tabla se símbolos, id, valor actual, tipo de dato, posici´øn
 # Pilas de operadores, saltos, operandos y tipos
-# Pilas () -> Cuadruplos -> Correr Código (con muucha lógica)
 from Lexer import *
 from Parser import *
 
@@ -11,7 +8,7 @@ from functions import print_tuple
 
 try:
   # Import the Data from the File
-  data = importData("Example5")
+  data = importData("Example2")
 
   # Build the lexer and parser
   lexer = lex.lex()
@@ -24,10 +21,14 @@ try:
   # print(result)
   print_tuple(result)
 
-  # quadruple.print()
+
+  
 
 except Exception as e:
   print(e)
+# print("-----")
+# print(symbols)
+# quadruple.print()
 
 # newlexer = lex.lex()
 # newlexer.input(data)

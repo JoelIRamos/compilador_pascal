@@ -1,6 +1,7 @@
 program test {
   var x, y : int;
   var z : real;
+  var i : int;
   begin; 
     x := 5;
     y := 2;

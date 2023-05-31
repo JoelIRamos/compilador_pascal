@@ -92,13 +92,18 @@ def t_NUMBER(t):
   if t.value.isdigit():
     t.value = int(t.value)
     t.type = "INTEGER"
+  else:
+    try: 
+      t.value = float(t.value)
+    except:
+      raise Exception("Scientific Notation is not in the correct format")
   return t
 
 
 # Regular expression for booleans
 def t_BOOLEAN(t):
   r'True|False'
-  # t.value = bool(t.value)
+  t.value = bool(t.value)
   return t
 
 
