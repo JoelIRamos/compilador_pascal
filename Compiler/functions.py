@@ -1,4 +1,5 @@
- # ***************** MAIN.PY FUNCTIONS *****************
+# ***************** MAIN.PY FUNCTIONS *****************
+
 
 # Import all the text information from a file .p in the Programs Folder
 def importData(file_name):
@@ -12,19 +13,20 @@ def importData(file_name):
     print("Couldn't open the file", {file_name})
   return data
 
+
 # Print a tuple that has recursive subtuples (used for Sintactic Tree in main debug)
 def print_tuple(result):
   for res in result:
-    if isinstance(res,tuple):
+    if isinstance(res, tuple):
       print_tuple(res)
     else:
       print(res)
 
 
-
 # ***************** PARSER.PY FUNCTIONS *****************
 
 # ------------ Parsing ------------
+
 
 # Uncomment the second line for debugging purposes
 def debug_print(object):
@@ -35,6 +37,7 @@ def debug_print(object):
 # Call Function to simplify a recursive tupple so all information is plain and in a single tuple
 def simplifyTuple(original_tuple):
   return tuple(simplifyTuple_aux(original_tuple))
+
 
 # SimplifyTuple Auxiliar
 def simplifyTuple_aux(original_tuple):
@@ -65,6 +68,7 @@ def separateVariables(t):
 
   return eliminar_coma_extra(sub_tuple)
 
+
 # Eliminate the Final extra comma in the tuple
 def eliminar_coma_extra(tupla):
   if len(tupla) == 1 and isinstance(tupla[0], tuple):
@@ -73,8 +77,8 @@ def eliminar_coma_extra(tupla):
     return tupla
 
 
-
 # ------------ Semantic ------------
+
 
 # Check if the data types can be used together (Functions as my Semantic Cube)
 def checkDataType(op1, op2):
@@ -97,8 +101,6 @@ def checkDataType(op1, op2):
     return False
 
 
-
-
 # # Function to flatten a tuple
 # def flatten_tuple(tupla):
 #   tuplas_combinadas = []
@@ -112,7 +114,3 @@ def checkDataType(op1, op2):
 
 #   recursive_flatten(tupla)
 #   return tuple(tuplas_combinadas)
-
-
-
-

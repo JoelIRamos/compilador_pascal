@@ -8,7 +8,7 @@ from functions import print_tuple
 
 try:
   # Import the Data from the File
-  data = importData("Example5")
+  data = importData("Example")
 
   # Build the lexer and parser
   lexer = lex.lex()
@@ -20,9 +20,6 @@ try:
   # print(quad)
   # print(result)
   print_tuple(result)
-
-
-  
 
 except Exception as e:
   print(e)

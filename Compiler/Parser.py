@@ -3,7 +3,7 @@ from Lexer import tokens
 from Quadruples import Quadruples
 from Symbols import Symbols
 from functions import debug_print, simplifyTuple, separateVariables, checkDataType
-        
+
 # Precedence of each operators (tokens)
 precendence = (
   ('right', 'ASSIGN'),
@@ -23,8 +23,10 @@ quadruple = Quadruples()
 stack = []
 jumps = []
 symbols = Symbols()
+for_id = ''
 
 # ----------------- Grammar Rules -----------------
+
 
 # ++++++++ Program +++++++++++
 def p_program(p):
@@ -43,7 +45,6 @@ def p_program_without_vars(p):
   '''
   debug_print("program")
   p[0] = (p[1], p[2], p[4])
-
 
 
 # ++++++++ VARIABLE +++++++++++
@@ -105,15 +106,13 @@ def p_datatype(p):
   p[0] = p[1]
 
 
-
 # ++++++++ BLOCK +++++++++++
 def p_block(p):
   '''
   block : BEGIN SEMICOLON statement END SEMICOLON
   '''
-  debug_print("block") 
+  debug_print("block")
   p[0] = (p[1], p[3], p[4])
-
 
 
 # ++++++++ STATEMENT +++++++++++
@@ -142,9 +141,8 @@ def p_statements(p):
   elif isinstance(p[2][0], tuple):
     result = tuple([p[1]]) + (p[2])
   else:
-    result = tuple([p[1],p[2]])
+    result = tuple([p[1], p[2]])
   p[0] = result
-
 
 
 # ++++++++ WRITE +++++++++++
@@ -155,7 +153,6 @@ def p_writestatement(p):
   debug_print("writestatement")
   p[0] = (p[1], p[3])
   quadruple.addQuadruples(p[1], p[4], None, None)
-  
 
 
 # ++++++++ ASSIGMENT +++++++++++
@@ -165,9 +162,10 @@ def p_assignstatement_classic(p):
   '''
   debug_print("assignstatement_classic")
   p[0] = (p[2], p[1], p[3])
-  
+
   # Check that the value is the same datatype as of the variable
-  if (checkDataType(symbols.getSymbol(p[1]), symbols.getSymbol(p[4]))):
+  datatypes = checkDataType(symbols.getSymbol(p[1]), symbols.getSymbol(p[4]))
+  if (datatypes):
     quadruple.addQuadruples(p[2], p[4], None, p[1])
   else:
     raise Exception(p[1], " datatype mismatch the expresion datatype")
@@ -179,32 +177,34 @@ def p_assignstatement_increment_decrement(p):
                   | ID MINUSMINUS SEMICOLON
   '''
   debug_print("assignstatement_increment_decrement")
-  
+
   # In case ++ -> id = id + 1. In case -- -> id = id - 1.
   if (p[2] == '++'):
     p[0] = (':=', p[1], ('+', p[1], 1))
     quadruple.addQuadruples('+', p[1], 1, p[1])
-  else: 
+  else:
     p[0] = (':=', p[1], ('-', p[1], 1))
     quadruple.addQuadruples('-', p[1], 1, p[1])
-
 
 
 # ++++++++ IF +++++++++++
 def p_ifstatement(p):
   '''
-  ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS point_if_then_ini THEN LEFTBRACKET statement RIGHTBRACKET point_if_then_end elsestatement
+  ifstatement : IF LEFTPARENTHESIS expression RIGHTPARENTHESIS point_if_then_ini THEN LEFTBRACKET statement RIGHTBRACKET elsestatement
   '''
   debug_print("ifstatement")
   p[0] = (p[1], p[3], p[6], p[7], p[8], p[9])
+  if p[10] == None:
+    quadruple.fillQuadruples(jumps.pop(), quadruple.counter)
 
 
 def p_if_else_statement(p):
   '''
-  elsestatement : ELSE LEFTBRACKET statement RIGHTBRACKET
+  elsestatement : ELSE point_else_ini LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("if_else_statement")
-  p[0] = (p[1], p[2], p[3], p[4])
+  p[0] = (p[1], p[2], p[4], p[5])
+  quadruple.fillQuadruples(jumps.pop(), quadruple.counter)
 
 
 def p_if_else_statement_none(p):
@@ -215,36 +215,159 @@ def p_if_else_statement_none(p):
   p[0] = None
 
 
+def p_point_if_then_ini(p):
+  '''
+  point_if_then_ini : 
+  '''
+  var = stack.pop()
+  symbol = symbols.getSymbol(var)
+  if symbol[1] == 'bool':
+    if symbol[0] != None:
+      var = symbol[0]
+
+    quadruple.counter
+    jumps.append(quadruple.counter)
+    quadruple.addQuadruples('goToF', var, None, None)
+  else:
+    raise Exception(
+      "The expression for the IF Statement must resolve in a boolean value")
+  return
+
+
+def p_point_else_ini(p):
+  '''
+  point_else_ini : 
+  '''
+  p[0] = None
+  jump = jumps.pop()
+  jumps.append(quadruple.counter)
+  quadruple.addQuadruples('goTo', None, None, None)
+  quadruple.fillQuadruples(jump, quadruple.counter)
+  return
+
+
 # ++++++++ WHILE +++++++++++
 def p_whileloop(p):
   '''
-  whileloop : WHILE LEFTPARENTHESIS expression RIGHTPARENTHESIS DO LEFTBRACKET statement RIGHTBRACKET
+  whileloop : WHILE LEFTPARENTHESIS point_first_exp expression RIGHTPARENTHESIS DO point_while LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("whileloop")
-  p[0] = (p[1], p[3], p[5], p[6], p[7], p[8])
-  # ToDo
+  p[0] = (p[1], p[4], p[6], p[8], p[9], p[10])
+  quadruple.addQuadruples('goTo', None, None, jumps.pop())
+  quadruple.fillQuadruples(jumps.pop(), quadruple.counter)
 
+
+def p_point_while(p):
+  '''
+  point_while : 
+  '''
+  p[0] = None
+  var = stack.pop()
+  symbol = symbols.getSymbol(var)
+  if symbol[1] == 'bool':
+    if symbol[0] != None:
+      var = symbol[0]
+
+    # Line of the first expresion
+    start = jumps.pop()
+    # Must be appended first because gotoF is the last jump
+    jumps.append(quadruple.counter)
+    jumps.append(start)
+    quadruple.addQuadruples('goToF', var, None, None)
+
+  else:
+    raise Exception(
+      "The expression for the While Statement must resolve in a boolean value")
+  return
+
+
+def p_point_first_exp(p):
+  '''
+  point_first_exp :
+  '''
+  p[0] = None
+  # Line of the first expresion
+  jumps.append(quadruple.counter)
 
 
 # ++++++++ FOR +++++++++++
 def p_forloop(p):
   '''
-  forloop : FOR LEFTPARENTHESIS ID ASSIGN expression SEMICOLON expression SEMICOLON ID increment_decrement RIGHTPARENTHESIS LEFTBRACKET statement RIGHTBRACKET
+  forloop : FOR LEFTPARENTHESIS assignstatement_for SEMICOLON point_for_pre_exp expression point_for_end_exp SEMICOLON increment_decrement RIGHTPARENTHESIS LEFTBRACKET statement RIGHTBRACKET
   '''
   debug_print("forloop")
-  p[0] = (p[1], p[3], p[4], p[5], p[7], p[9], p[10],
-          p[12], p[13], p[14])
-  # ToDo
-  
+  # Add the increment or decrement quadruple
+  if p[9][1] == '++':
+    quadruple.addQuadruples('+', p[9][0], 1, p[9][0])
+  elif p[9][1] == '--':
+    quadruple.addQuadruples('-', p[9][0], 1, p[9][0])
+  else:
+    raise Exception("CE:", p[9][1], 'must be either ++ or --')
+
+  # Add the got to comparison
+  quadruple.addQuadruples('goTo', None, None, p[5])
+  quadruple.fillQuadruples(jumps.pop(), quadruple.counter)
+  p[0] = (p[1], p[3], p[4], p[6], p[8], p[9], p[11], p[12], p[13])
+
+
+def p_assignstatement_for(p):
+  '''
+  assignstatement_for : ID ASSIGN expression point_ae
+  '''
+  debug_print("assignstatement_for")
+  p[0] = (p[2], p[1], p[3])
+
+  # Check that the value is the same datatype as of the variable
+  datatypes = checkDataType(symbols.getSymbol(p[1]), symbols.getSymbol(p[4]))
+  if (datatypes):
+    if datatypes[0] == 'int':
+      quadruple.addQuadruples(p[2], p[4], None, p[1])
+    else:
+      raise Exception(
+        "Error with", p[1],
+        ". In For Loop, the variable datatype must be an integer")
+  else:
+    raise Exception("For Loop Error: ", p[1],
+                    " datatype mismatch the first expresion datatype")
+
+
+# Return the index where the comparison begin
+def p_point_for_pre_exp(p):
+  '''
+  point_for_pre_exp :
+  '''
+  p[0] = quadruple.counter
+
+
+def p_point_for_end_exp(p):
+  '''
+  point_for_end_exp : point_ae
+  '''
+  symbol = symbols.getSymbol(p[1])
+  # print("Symbol:", symbol, "var: ", p[1])
+  if symbol[1] == 'bool':
+    jumps.append(quadruple.counter)
+    quadruple.addQuadruples('goToF', p[1], None, None)
+  else:
+    raise Exception(
+      "For Error: second expression must resolve to a boolean value")
+  p[0] = None
+
 
 def p_increment_decrement(p):
   '''
-  increment_decrement : PLUSPLUS
-                      | MINUSMINUS
+  increment_decrement : ID PLUSPLUS
+                      | ID MINUSMINUS
   '''
-  debug_print("formodifier")
-  p[0] = p[1]
-
+  debug_print("increment_decrement")
+  symbol = symbols.getSymbol(p[1])
+  if symbol:
+    if symbol[1] == 'int':
+      p[0] = (p[1], p[2])
+    else:
+      raise Exception(p[1], "must be an integer for the For Loop")
+  else:
+    raise Exception(p[1], "wasn't defined in the scope")
 
 
 # ++++++++ EXPRESSIONS +++++++++++
@@ -260,7 +383,6 @@ def p_expression(p):
   p[0] = p[1]
 
 
-
 # ======== STRING ========
 def p_expression_string(p):
   '''
@@ -271,7 +393,6 @@ def p_expression_string(p):
   temporal = symbols.generateTemporal()
   symbols.writeSymbol(temporal, p[1], 'string', None)
   stack.append(temporal)
-
 
 
 # ======== LOGICAL ========
@@ -292,9 +413,9 @@ def p_logical_expression(p):
   debug_print("logical_expression")
   p[0] = (p[3], p[1], p[4])
 
- # Create the temporal variable for the result of the operation
+  # Create the temporal variable for the result of the operation
   temporal = symbols.generateTemporal()
-  
+
   # Add it to the Stack
   stack.append(temporal)
 
@@ -306,12 +427,15 @@ def p_logical_expression(p):
   # Validate the datatypes of the operation match
   if (datatypes):
     # Validate the datatypes are boolean (True/False)
-    if (datatypes[0]=='bool' and datatypes[1]=='bool'):
+    if (datatypes[0] == 'bool' and datatypes[1] == 'bool'):
       symbols.writeSymbol(temporal, None, 'bool', None)
     else:
-      raise Exception("DataType mismatch, logical operators can only compare logical values (True/False).")
+      raise Exception(
+        "DataType mismatch, logical operators can only compare logical values (True/False)."
+      )
   else:
-    raise Exception("DataType mismatch with ", p[1], " and ", p[4], ". They are incompatible.")
+    raise Exception("DataType mismatch with ", p[1], " and ", p[4],
+                    ". They are incompatible.")
 
 
 def p_logical_expression_parenthesis(p):
@@ -320,7 +444,6 @@ def p_logical_expression_parenthesis(p):
   '''
   debug_print("logical_expression_parenthesis")
   p[0] = p[2]
-
 
 
 # ======== RELATIONAL ========
@@ -336,7 +459,7 @@ def p_relational_expression(p):
   p[0] = (p[3], p[1], p[4])
   # Create the temporal variable for the result of the operation
   temporal = symbols.generateTemporal()
-  
+
   # Add it to the Stack
   stack.append(temporal)
 
@@ -349,12 +472,16 @@ def p_relational_expression(p):
   # Validate the datatypes of the operation match
   if (datatypes):
     # Validate the datatypes are arithmetic (numbers)
-    if ((datatypes[0]=='int' or datatypes[0]=='real') and (datatypes[1]=='int' or datatypes[1]=='real')):
+    if ((datatypes[0] == 'int' or datatypes[0] == 'real')
+        and (datatypes[1] == 'int' or datatypes[1] == 'real')):
       symbols.writeSymbol(temporal, None, 'bool', None)
     else:
-      raise Exception("DataType mismatch, relational operators can only compare arithmetic values.")
+      raise Exception(
+        "DataType mismatch, relational operators can only compare arithmetic values."
+      )
   else:
-    raise Exception("DataType mismatch with ", p[1], " and ", p[4], ". They are incompatible.")
+    raise Exception("DataType mismatch with ", p[1], " and ", p[4],
+                    ". They are incompatible.")
 
 
 # Strings can only be compared with the equal relational operator
@@ -365,10 +492,10 @@ def p_relational_expression_string(p):
   debug_print("relational_expression_string")
   p[0] = (p[2], p[1], p[3])
   quadruple.addQuadruples(p[2], p[1], p[3], None)
-  
+
   # Create the temporal variable for the result of the operation
   temporal = symbols.generateTemporal()
-  
+
   # Add it to the Stack
   stack.append(temporal)
 
@@ -395,7 +522,6 @@ def p_relational_expression_unit(p):
   stack.append(temporal)
 
 
-
 # ======== ARITHMETIC ========
 def p_arithmetic_expression(p):
   '''
@@ -406,10 +532,10 @@ def p_arithmetic_expression(p):
   '''
   debug_print("arithmetic_expression")
   p[0] = (p[3], p[1], p[4])
-  
+
   # Create the temporal variable for the result of the operation
   temporal = symbols.generateTemporal()
-  
+
   # Add it to the Stack
   stack.append(temporal)
 
@@ -422,14 +548,17 @@ def p_arithmetic_expression(p):
   # Validate the datatypes of the operation match
   if (datatypes):
     # Verify the datatype is of a number
-    if ((datatypes[0]=='int' or datatypes[0]=='real') and (datatypes[1]=='int' or datatypes[1]=='real')):
+    if ((datatypes[0] == 'int' or datatypes[0] == 'real')
+        and (datatypes[1] == 'int' or datatypes[1] == 'real')):
       # If one of the datatypes is a Real Number, then the expression is Real also
       if datatypes[0] == 'int' and datatypes[1] == 'int':
         symbols.writeSymbol(temporal, None, 'int', None)
       else:
         symbols.writeSymbol(temporal, None, 'real', None)
     else:
-      raise Exception("DataType mismatch, arithmetic operators can only operate on arithmetic values.")
+      raise Exception(
+        "DataType mismatch, arithmetic operators can only operate on arithmetic values."
+      )
   else:
     raise Exception("DataType mismatch with ", p[1], " and ", p[4])
 
@@ -475,15 +604,14 @@ def p_expression_id(p):
   '''
   p[0] = p[1]
   var = symbols.getSymbol(p[1])
-  
-  # Si la var fue encontrada 
+
+  # Si la var fue encontrada
   if var:
-      # Add it to the stack
-      stack.append(p[1])
+    # Add it to the stack
+    stack.append(p[1])
   else:
     raise Exception(str(p[1]) + " was not defined")
   # ToDo: CHECK ALL THE DATATYPES
-
 
 
 # ++++++++ EMPTY +++++++++++
@@ -496,7 +624,6 @@ def p_empty(p):
   pass
 
 
-
 # ++++++++ ERROR +++++++++++
 def p_error(p):
   if p is not None:
@@ -504,7 +631,6 @@ def p_error(p):
     print("Sintaxis Error with", p)
   else:
     print('Unexpected end of input')
-
 
 
 # Hacer pop al último valor y guardarlo en p[0]
@@ -523,30 +649,4 @@ def p_point_ae(p):
       p[0] = symbol[0]
   else:
     raise Exception("CE: ", var, "was not defined")
-  return 
-
-
-def p_point_if_then_ini(p):
-  '''
-  point_if_then_ini : 
-  '''
-  var = stack.pop()
-  symbol = symbols.getSymbol(var)
-  if symbol[1] == 'bool':
-    if symbol[0] != None:
-      var = symbol[0]
-    quadruple.counter
-    jumps.append(quadruple.counter)
-    quadruple.addQuadruples('goToF', var, None, None)
-  else:
-    raise Exception("The expresión for the IF Statement must resolve in a boolean value")
-  return
-  
-def p_point_if_then_end(p):
-  '''
-  point_if_then_end : 
-  '''
-  # p[0] = None
-  # pass
-  quadruple.fillQuadruples(jumps.pop(),quadruple.counter)
   return

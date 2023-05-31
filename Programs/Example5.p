@@ -1,14 +1,9 @@
 program main{
-  var i,n,f,x : int;
+  var i, j : int;
   begin;
-    write("texto dump");
-    f := 1;
-    x := 5;
-    if (x > f) then 
-    {
-      if (x = f) then
-      {
-        n := x + f;
+    for (i := 1; i <= 10; i++) {
+      for (j := 1; j <= 20; j++) {
+        write(i * j);
       }
     }
   end;
