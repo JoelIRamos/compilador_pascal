@@ -3,7 +3,8 @@
 
 # Import all the text information from a file .p in the Programs Folder
 def importData(file_name):
-  file_name = "./Programs/" + file_name + ".p"
+  file_name = "./Pruebas/" + file_name + ".txt"
+  # file_name = "./Programs/" + file_name + ".p"
   try:
     with open(file_name, 'r') as file:
       data = file.read()

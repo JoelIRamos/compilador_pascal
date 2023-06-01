@@ -86,7 +86,7 @@ def t_STRING(t):
 
 # Regular expression for numbers
 def t_NUMBER(t):
-  r'[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?'
+  r'[-]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?'
   # If number is an integer
   if t.value.isdigit():
     t.value = int(t.value)

@@ -633,10 +633,11 @@ def p_empty(p):
 # ++++++++ ERROR +++++++++++
 def p_error(p):
   if p is not None:
-    print("Line ", p.lineno, " illegal token ", p.value)
-    print("Sintaxis Error with", p)
+    raise Exception("Sintaxis Error: Line ", p.lineno, " illegal token ",
+                    p.value)
+    # "Sintaxis Error with", p.value)
   else:
-    print('Unexpected end of input')
+    raise Exception('Unexpected end of input')
 
 
 # Hacer pop al último valor y guardarlo en p[0]

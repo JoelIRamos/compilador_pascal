@@ -8,7 +8,10 @@ from VirtualMachine import virtual_machine
 
 try:
   # Import the Data from the File
-  data = importData("Example4")
+  # data = importData("pruebaErrores")
+  data = importData("pruebaFor")
+  # data = importData("pruebaIf")
+  # data = importData("pruebaWhile")
 
   # Build the lexer and parser
   lexer = lex.lex()

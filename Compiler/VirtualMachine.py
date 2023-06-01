@@ -89,7 +89,12 @@ def virtual_machine():
     elif (operator == 'or'):
       res = argument1 or argument2
     elif (operator == 'write'):
-      print(argument1)
+      if argument1 != None:
+        print(argument1)
+      else:
+        print(float(0))
+      #   raise Exception("Cannot write an id that hasn't been asigned a value")
+      # print(argument1)
       line += 1
       continue
     elif (operator == None):
