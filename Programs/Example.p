@@ -1,7 +1,8 @@
 program main{
-  var x, y: int;
+  var x, y : str;
   begin;
-    x++;
-    y := x + 3;
+    x := "Hi";
+    y := "Hi";
+    write(x = y);
   end;
 }

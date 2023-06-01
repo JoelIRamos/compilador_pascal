@@ -1,6 +1,7 @@
 program test {
   var x, y : int;
   var z : real;
+  var i : int;
   begin; 
     x := 5;
     y := 2;
@@ -21,7 +22,7 @@ program test {
     }
     
     for (i := 1; i <= 10; i++) {
-        write(i);
+      write(i);
     }
   end;
 }

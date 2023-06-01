@@ -1,31 +1,44 @@
-# Imprimir Lista de Cuadruplos
 # While con Switch Anidado para Máquina Virtual?
-# Tabla se símbolos, id, valor actual, tipo de dato, posici´øn
 # Pilas de operadores, saltos, operandos y tipos
-# Pilas () -> Cuadruplos -> Correr Código (con muucha lógica)
 from Lexer import *
 from Parser import *
 
-from functions import importData
-from functions import print_tuple
+from functions import importData, print_tuple
+from VirtualMachine import virtual_machine
 
 try:
   # Import the Data from the File
-  data = importData("Example5")
+  data = importData("Example4")
 
   # Build the lexer and parser
   lexer = lex.lex()
   parser = yacc.yacc()
 
-  # lexer.input(data)
   result = parser.parse(data, lexer=lexer)
 
-  # print(quad)
-  # print(result)
-  print_tuple(result)
+  virtual_machine()
 
-  # quadruple.print()
+except Exception as e:
+  print(e)
 
+# try:
+#   # Print Synthactic Tree
+#   print("\n******** Synthactic Tree ********")
+#   print_tuple(result)
+# except Exception as e:
+#   print(e)
+
+try:
+  # Print the Quadruples
+  print("\n******** Quadruples ********")
+  quadruple.print()
+except Exception as e:
+  print(e)
+
+try:
+  # Print the Variables and it's values
+  print("\n******** Variables ********")
+  symbols_copy.print()
 except Exception as e:
   print(e)
 
@@ -37,15 +50,3 @@ except Exception as e:
 #   if not tok:
 #     break  # No more input
 #   print(tok)
-
-# from symbols import Symbols
-# from quadruples import Quadruples
-
-# quad = Quadruples()
-# symb = Symbols()
-# temporal = symb.generateTemporal()
-# quad.addQuadruples('+', 'b', 'c', temporal)
-# quad.addQuadruples(':=', temporal, None, 'a')
-
-# print("Quadruples: ", quad)
-# print("Symbols: ", symb)
