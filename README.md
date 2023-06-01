@@ -1,7 +1,7 @@
 # Compilador para Lenguaje de Programación tipo Pascal
 Este repo es para un compilador que desarrollé para la clase de "Desarrollo de Aplicaciones avanzadas de Ciencias Computacionales" en mi octavo semestre de la carrera.
 
-### 
+<!-- ### 
 | Symbol | Token | Function | 
 | :---: | --- | --- |
 || ID | Identifier, should begin with letter of '_' and can have also numbers | 
@@ -51,4 +51,4 @@ Este repo es para un compilador que desarrollé para la clase de "Desarrollo de 
 | int | INT | |
 | float | FLOAT | |
 | char | CHAR | |
-| bool | BOOL | |
+| bool | BOOL | | -->
