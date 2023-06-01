@@ -23,6 +23,7 @@ quadruple = Quadruples()
 stack = []
 jumps = []
 symbols = Symbols()
+symbols_copy = Symbols()
 for_id = ''
 
 # ----------------- Grammar Rules -----------------
@@ -59,6 +60,7 @@ def p_variable(p):
   # For each Variable, add it to the symbols
   for variable in p[2]:
     symbols.writeSymbol(str(variable), None, p[4], None)
+    symbols_copy.writeSymbol(str(variable), None, p[4], None)
 
 
 def p_variable_repetition(p):
@@ -162,7 +164,6 @@ def p_assignstatement_classic(p):
   '''
   debug_print("assignstatement_classic")
   p[0] = (p[2], p[1], p[3])
-
   # Check that the value is the same datatype as of the variable
   datatypes = checkDataType(symbols.getSymbol(p[1]), symbols.getSymbol(p[4]))
   if (datatypes):
@@ -391,7 +392,7 @@ def p_expression_string(p):
   debug_print("expression_string")
   p[0] = p[1]
   temporal = symbols.generateTemporal()
-  symbols.writeSymbol(temporal, p[1], 'string', None)
+  symbols.writeSymbol(temporal, p[1], 'str', None)
   stack.append(temporal)
 
 
@@ -476,9 +477,13 @@ def p_relational_expression(p):
         and (datatypes[1] == 'int' or datatypes[1] == 'real')):
       symbols.writeSymbol(temporal, None, 'bool', None)
     else:
-      raise Exception(
-        "DataType mismatch, relational operators can only compare arithmetic values."
-      )
+      # Case for when a variable is a string
+      if (p[3] == '=' and datatypes == ['str', 'str']):
+        symbols.writeSymbol(temporal, None, 'bool', None)
+      else:
+        raise Exception(
+          "DataType mismatch, relational operators can only compare arithmetic values."
+        )
   else:
     raise Exception("DataType mismatch with ", p[1], " and ", p[4],
                     ". They are incompatible.")
@@ -491,10 +496,11 @@ def p_relational_expression_string(p):
   '''
   debug_print("relational_expression_string")
   p[0] = (p[2], p[1], p[3])
-  quadruple.addQuadruples(p[2], p[1], p[3], None)
 
   # Create the temporal variable for the result of the operation
   temporal = symbols.generateTemporal()
+
+  quadruple.addQuadruples(p[2], p[1], p[3], temporal)
 
   # Add it to the Stack
   stack.append(temporal)

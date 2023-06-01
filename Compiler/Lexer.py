@@ -80,8 +80,7 @@ t_RIGHTBRACKET = r'\}'
 
 # Regular expression for Strings
 def t_STRING(t):
-  r'\".*\"'
-  t.value = t.value[1:-1]
+  r'"([^"]*)"'
   return t
 
 
@@ -93,7 +92,7 @@ def t_NUMBER(t):
     t.value = int(t.value)
     t.type = "INTEGER"
   else:
-    try: 
+    try:
       t.value = float(t.value)
     except:
       raise Exception("Scientific Notation is not in the correct format")

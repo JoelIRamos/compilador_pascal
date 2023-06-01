@@ -91,7 +91,7 @@ def checkDataType(op1, op2):
     return [dataType1, dataType2]
   elif (dataType1 == 'real' and dataType2 == 'real'):
     return [dataType1, dataType2]
-  elif (dataType1 == 'string' and dataType2 == 'string'):
+  elif (dataType1 == 'str' and dataType2 == 'str'):
     return [dataType1, dataType2]
   elif (dataType1 == 'real' and dataType2 == 'int'):
     return [dataType1, dataType2]
