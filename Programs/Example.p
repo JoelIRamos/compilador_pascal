@@ -1,9 +1,8 @@
 program main{
-  var x, y: str;
+  var x, y : str;
   begin;
-    x := "Hola Mundo";
-    y := "Hola Mundo";
+    x := "Hi";
+    y := "Hi";
     write(x = y);
-    write("a" = "a");
   end;
 }

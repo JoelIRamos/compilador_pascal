@@ -22,7 +22,7 @@ program test {
     }
     
     for (i := 1; i <= 10; i++) {
-        write(i);
+      write(i);
     }
   end;
 }

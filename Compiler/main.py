@@ -8,24 +8,25 @@ from VirtualMachine import virtual_machine
 
 try:
   # Import the Data from the File
-  data = importData("Example3")
+  data = importData("Example4")
 
   # Build the lexer and parser
   lexer = lex.lex()
   parser = yacc.yacc()
 
   result = parser.parse(data, lexer=lexer)
+
   virtual_machine()
 
 except Exception as e:
   print(e)
 
-try:
-  # Print Synthactic Tree
-  print("\n******** Synthactic Tree ********")
-  print_tuple(result)
-except Exception as e:
-  print(e)
+# try:
+#   # Print Synthactic Tree
+#   print("\n******** Synthactic Tree ********")
+#   print_tuple(result)
+# except Exception as e:
+#   print(e)
 
 try:
   # Print the Quadruples

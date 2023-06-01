@@ -46,12 +46,16 @@ def virtual_machine():
     if (operator == 'goToF'):
       if (not argument1):
         line = result
-        continue
+      else:
+        line += 1
+      continue
     elif (operator == 'goTo'):
       line = result
       continue
     elif (operator == ':='):
       res = argument1
+      if (result_type == 'int'):
+        res = int(res)
     elif (operator == '>'):
       res = argument1 > argument2
     elif (operator == '<'):
@@ -64,15 +68,22 @@ def virtual_machine():
       res = argument1 == argument2
     elif (operator == '+'):
       res = argument1 + argument2
+      if (result_type == 'int'):
+        res = int(res)
     elif (operator == '-'):
       res = argument1 - argument2
+      if (result_type == 'int'):
+        res = int(res)
     elif (operator == '*'):
       res = argument1 * argument2
+      if (result_type == 'int'):
+        res = int(res)
     elif (operator == '/'):
       if argument2 == 0:
         raise Exception("Running Error: can't be divided by zero")
       res = argument1 / argument2
-      pass
+      if (result_type == 'int'):
+        res = int(res)
     elif (operator == 'and'):
       res = argument1 and argument2
     elif (operator == 'or'):
@@ -86,5 +97,7 @@ def virtual_machine():
     else:
       raise Exception("CE: Case not contemplated")
 
-    variables.symbols[result] = [res, result_type, None]
+    if (not end):
+      variables.symbols[result] = [res, result_type, None]
+
     line += 1
